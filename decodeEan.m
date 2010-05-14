@@ -1,4 +1,4 @@
-function values = decodeEan
+function values = decodeEan(binaryInput)
 %decodeEan
 %   values = DecodeEan(firstDigit, binaryInput) 
 %   decodes binary input EAN code
@@ -7,10 +7,15 @@ function values = decodeEan
     global firstDigit;
     global digitLength;
     
+    % input zijn cijferkes 0 en 1, omzetten naar stringvalue
+    inputBytes = binaryToString(binaryInput);
+%   inputBytes = '10101110110110011001100100110110111001011110101010111001011100101100110110110011100101101100101';
+    
     %conventions: digit = 0 - 9
     %               bit = 0 - 1
 
-    firstDigit = 8;  %the digit in front of the barcode
+    %the digit in front of the barcode
+    firstDigit = guessFirstDigit(inputBytes);  
     digitLength = 7; %number of bytes per char
     
     %01 - 03
@@ -27,9 +32,9 @@ function values = decodeEan
 
     %93 - 95
     %end    = 101
-    %              0        10        20        30        40        50        60        70       80        90
-    %              12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345         
-    inputBytes  = '10101110110110011001100100110110111001011110101010111001011100101100110110110011100101101100101';
+    %               0        10        20        30        40        50        60        70       80        90
+    %               12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345         
+    %inputBytes  = '10101110110110011001100100110110111001011110101010111001011100101100110110110011100101101100101';
    
 
     % blue color map
@@ -71,7 +76,7 @@ function values = decodeEan
         % of the barcode, this position will be used to determine the 
         % color of that digit
         color = getColor(i);
-        hCode = hInputStr(i:i+6);
+        hCode = hInputStr(i:i+6)
         
         switch color
             case 'L'
@@ -146,4 +151,51 @@ function withoutSpaces = removeSpaces(stringIn)
     %http://www.mofeel.net/582-comp-soft-sys-matlab/98032.aspx
     stringIn(stringIn==' ') = [];
     withoutSpaces = stringIn;
+    
+function firstDigit = guessFirstDigit(binaryInput)
+    inputBytes = binaryInput
+    hInputStr = inputBytes(4:45); %first part of actual data
+    oddOrEven = zeros(1,6); %one bit per 'digit', set to G if the coding is even,
+                            %L when odd
+
+    %count the number of ones per digit...
+    for i = 1:1:6 % 6 digits
+        numOnes = 0;
+        for j = 1:1:7 % 7 bits per digit 
+            position = (i - 1) * 7 + j;
+            if(hInputStr(position) == '1') 
+                numOnes = numOnes + 1;
+            end
+        end
+        if(mod(numOnes,2) == 0)
+            oddOrEven(i) = 'G';
+        else
+            oddOrEven(i) = 'L';
+        end        
+    end
+
+    oddOrEven = char(oddOrEven);
+
+    colorMap = containers.Map({'LLLLLL', 'LLGLGG', 'LLGGLG', ...
+        'LLGGGL', 'LGLLGG', 'LGGLLG', 'LGGGLL', ...
+        'LGLGLG', 'LGLGGL', 'LGGLGL'}, ...
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+    firstDigit = colorMap(oddOrEven);
+   
+function string = binaryToString(binaryInput)
+    string = zeros(1,length(binaryInput));
+    for i=1:1:length(binaryInput)
+        if(binaryInput(i) == 1)
+            string(i) = '1';
+        else
+            if(binaryInput(i) == 0)
+                string(i) = '0';
+            end
+        end
+    end
+    string = char(string);
+
+
+
 

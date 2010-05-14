@@ -3,7 +3,7 @@
 %Recognises barcode from image
 %
 
-function [ans, new_bar, flag]= readimage(bar)
+function [binaryOut, new_bar, flag]= readimage(bar)
 
 %bar = imread ('test2.jpg');
 % imshow (bar);
@@ -43,10 +43,12 @@ l = length(bc);
 %end
 bc2 = imresize(new_bar, [1 95], 'nearest');
 %Output
-ans=round(bc2);
+binaryOut=round(bc2);
+binaryOut=not(binaryOut);
 if bc2==1
    flag=1;
 else
    flag=0;
 end
+
 
