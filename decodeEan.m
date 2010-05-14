@@ -76,7 +76,7 @@ function values = decodeEan(binaryInput)
         % of the barcode, this position will be used to determine the 
         % color of that digit
         color = getColor(i);
-        hCode = hInputStr(i:i+6)
+        hCode = hInputStr(i:i+6);
         
         switch color
             case 'L'
@@ -94,7 +94,7 @@ function values = decodeEan(binaryInput)
         disp 'code is invalid'
     end
     
-    display(formatCode(values));
+    values = formatCode(values);
     
 
 function converted = convertPosition(position)
@@ -153,7 +153,7 @@ function withoutSpaces = removeSpaces(stringIn)
     withoutSpaces = stringIn;
     
 function firstDigit = guessFirstDigit(binaryInput)
-    inputBytes = binaryInput
+    inputBytes = binaryInput;
     hInputStr = inputBytes(4:45); %first part of actual data
     oddOrEven = zeros(1,6); %one bit per 'digit', set to G if the coding is even,
                             %L when odd
