@@ -1,4 +1,4 @@
-I = imread('test2.jpg');
+I = imread('test.jpg');
 %turn image
 [I2,flag] = anglex(I);
 %read image
